@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Settings</title>
+<style>
+:root { color-scheme: light dark; --page: light-dark(#f5f5f7,#000); --panel: light-dark(#fff,#1c1c1e); --secondary: light-dark(#f2f2f7,#2c2c2e); --text: light-dark(#1d1d1f,#f5f5f7); --muted: light-dark(#86868b,#98989f); --line: light-dark(#e4e4e8,#3a3a3c); --blue: #0a84ff; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--text); font-family: -apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif; }
+.app { min-height: 100vh; background: var(--page); }
+.topbar { height: 76px; display:flex; align-items:center; justify-content:space-between; gap:20px; padding: 0 clamp(20px,5vw,76px); border-bottom:1px solid var(--line); background:var(--panel); position:sticky; top:0; z-index:5; }
+.brand { display:flex; align-items:center; gap:12px; font-size:21px; font-weight:700; letter-spacing:-.6px; }
+.apple { font-size:29px; line-height:1; }
+.tools { display:flex; align-items:center; gap:12px; }
+.search { display:flex; align-items:center; gap:9px; background:var(--secondary); border:1px solid var(--line); padding:10px 13px; border-radius:11px; width:min(270px,42vw); }
+.search input { border:0; outline:0; background:transparent; color:var(--text); width:100%; font-size:14px; }
+.help { width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--secondary);color:var(--text);font-weight:700;font-size:15px;cursor:pointer; }
+.layout { display:grid; grid-template-columns: minmax(245px,300px) minmax(0,850px); gap: clamp(24px,4vw,58px); max-width:1250px; margin:0 auto; padding:34px clamp(18px,4vw,42px) 70px; }
+.sidebar { align-self:start; position:sticky; top:104px; }
+.profile { display:flex; gap:13px; align-items:center; padding:16px; background:var(--panel); border:1px solid var(--line); border-radius:16px; margin-bottom:14px; }
+.avatar { width:60px;height:60px;border-radius:50%;background:linear-gradient(145deg,#d5e8ff,#8bb9f7 55%,#5578c8);display:grid;place-items:center;color:#fff;font-size:22px;font-weight:700;box-shadow:inset 0 1px 2px #ffffff88;flex-shrink:0; }
+.profile h2 { font-size:16px; margin:0 0 5px; letter-spacing:-.2px; }
+.profile p { margin:0;color:var(--muted);font-size:12px; }
+.family { background:var(--panel); border:1px solid var(--line); border-radius:14px; overflow:hidden; margin-bottom:16px; }
+.family-head { padding:13px 15px 8px; font-size:12px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.5px; }
+.family-item { width:100%; border:0; background:transparent; color:var(--text); display:flex;align-items:center;gap:11px;padding:10px 15px;text-align:left;cursor:pointer;font-size:14px; }
+.family-item:hover,.nav-item:hover { background:var(--secondary); }
+.mini-avatar { width:28px;height:28px;border-radius:50%;display:grid;place-items:center;color:white;font-size:11px;font-weight:700; }
+.nav { display:grid;gap:3px; }
+.nav-item { border:0; border-radius:10px; padding:11px 13px; background:transparent; color:var(--text); display:flex; align-items:center; gap:12px; text-align:left; cursor:pointer; font-size:14px; }
+.nav-item.active { background:light-dark(#e4e4e9,#3a3a3c); font-weight:600; }
+.ico { width:27px;height:27px;border-radius:7px;display:grid;place-items:center;color:#fff;font-size:15px;flex-shrink:0; }
+main { min-width:0; }
+.page-heading { display:flex;align-items:flex-end;justify-content:space-between;margin:2px 0 22px; }
+h1 { margin:0;font-size:clamp(28px,4vw,38px);letter-spacing:-1.2px;line-height:1.1; }
+.subtitle { margin:8px 0 0;color:var(--muted);font-size:14px; }
+.section { margin:0 0 25px; }
+.section-title { font-size:13px;color:var(--muted);font-weight:600;margin:0 0 9px 4px; }
+.panel { background:var(--panel);border:1px solid var(--line);border-radius:15px;overflow:hidden; }
+.setting-row { display:flex;align-items:center;gap:13px;padding:14px 16px;min-height:67px;border-bottom:1px solid var(--line);cursor:pointer; }
+.setting-row:last-child { border-bottom:0; }
+.setting-row:hover { background:light-dark(#fafafa,#252527); }
+.setting-row .row-icon { width:34px;height:34px;border-radius:9px;display:grid;place-items:center;color:#fff;font-size:18px;flex-shrink:0; }
+.row-copy { flex:1;min-width:0; }
+.row-copy strong { font-size:14px;font-weight:500;display:block; }
+.row-copy small { color:var(--muted);display:block;font-size:12px;margin-top:4px;line-height:1.35; }
+.row-end { color:var(--muted);display:flex;align-items:center;gap:10px;font-size:13px;white-space:nowrap; }
+.chev { font-size:22px;font-weight:300;color:var(--muted); }
+.pill { background:#34c759;color:#fff;border-radius:20px;padding:3px 8px;font-size:11px;font-weight:600; }
+.detail { display:none; }
+.detail.show { display:block; }
+.back { border:0;background:transparent;color:var(--blue);font-size:14px;padding:0;margin:0 0 18px;cursor:pointer; }
+.detail-card { background:var(--panel);border:1px solid var(--line);border-radius:17px;padding:24px; }
+.big-avatar { width:100px;height:100px;border-radius:50%;margin:0 auto 14px;background:linear-gradient(145deg,#d5e8ff,#8bb9f7 55%,#5578c8);display:grid;place-items:center;color:white;font-size:35px;font-weight:700; }
+.person-head { text-align:center;padding:8px 0 23px; }
+.person-head h2 { margin:0;font-size:24px;letter-spacing:-.6px; }
+.person-head p { color:var(--muted);font-size:13px;margin:6px 0 0; }
+.info-list { border-top:1px solid var(--line); }
+.info { display:grid;grid-template-columns: minmax(110px, .7fr) 1.3fr;gap:15px;padding:15px 3px;border-bottom:1px solid var(--line);font-size:14px; }
+.info:last-child { border-bottom:0; }
+.info label { color:var(--muted); }
+.info span { overflow-wrap:anywhere; }
+.notice { background:var(--secondary);padding:13px 15px;border-radius:11px;color:var(--muted);font-size:12px;line-height:1.5;margin-top:18px; }
+.empty { padding:25px;text-align:center;color:var(--muted);font-size:14px; }
+.modal-backdrop { display:none;position:fixed;inset:0;background:#0007;z-index:20;align-items:center;justify-content:center;padding:20px; }
+.modal-backdrop.open { display:flex; }
+.modal { width:min(440px,100%);background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:24px;box-shadow:0 20px 60px #0003; }
+.modal h2 { margin:0 0 8px;font-size:21px; }
+.modal p { color:var(--muted);font-size:14px;line-height:1.55; }
+.modal button { border:0;background:var(--blue);color:white;border-radius:10px;padding:10px 18px;font-weight:600;cursor:pointer; }
+.action-control { display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 0;border-bottom:1px solid var(--line);font-size:14px; }
+.action-control:last-child { border-bottom:0; }
+.switch { appearance:none;width:43px;height:26px;border-radius:20px;background:#8e8e93;position:relative;cursor:pointer;transition:background .18s;flex-shrink:0; }
+.switch::after { content:"";position:absolute;width:22px;height:22px;left:2px;top:2px;background:white;border-radius:50%;box-shadow:0 1px 3px #0003;transition:transform .18s; }
+.switch:checked { background:#34c759; }
+.switch:checked::after { transform:translateX(17px); }
+.choice { background:var(--secondary);color:var(--text);border:1px solid var(--line);border-radius:9px;padding:8px;max-width:55%; }
+.range { width:45%;accent-color:var(--blue); }
+.wallpaper-swatches { display:flex;gap:12px;margin-top:16px;flex-wrap:wrap; }
+.swatch { width:76px;height:105px;border-radius:13px;border:3px solid transparent;cursor:pointer; }
+.swatch.selected { border-color:var(--blue);outline:2px solid var(--blue);outline-offset:2px; }
+.family-member { display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--line); }
+.family-member:last-child { border-bottom:0; }
+.family-member .member-name { flex:1; }
+.small-button { background:var(--secondary);color:var(--blue);border:1px solid var(--line);border-radius:9px;padding:8px 10px;cursor:pointer; }
+.toast { position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--page);padding:11px 17px;border-radius:12px;font-size:13px;z-index:30;box-shadow:0 5px 24px #0002; }
+@media(max-width:800px) { .layout{grid-template-columns:1fr;gap:28px;padding-top:20px}.sidebar{position:static}.nav{grid-template-columns:repeat(2,minmax(0,1fr))}.topbar{padding:0 18px}.brand{font-size:19px} }
+@media(max-width:480px) { .search{width:145px}.topbar{height:65px}.layout{padding-left:13px;padding-right:13px}.nav{grid-template-columns:1fr 1fr}.setting-row{padding:12px}.row-end .status-text{display:none}.info{grid-template-columns:1fr;gap:5px} }
+/* Apple System Settings-inspired desktop finish */
+:root { color-scheme: light; --page:#f5f5f7; --panel:#fff; --secondary:#e8e8ed; --text:#1d1d1f; --muted:#6e6e73; --line:#d2d2d7; --blue:#007aff; }
+body { background:#f5f5f7; font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif; letter-spacing:-.15px; }
+.app { min-height:100vh; background:#f5f5f7; }
+.topbar { height:48px; padding:0 22px; background:rgba(246,246,248,.94); border-bottom:1px solid #d8d8dd; backdrop-filter:blur(20px); }
+.brand { gap:8px; font-size:14px; font-weight:650; letter-spacing:-.2px; }
+.apple { font-size:24px; }
+.tools { gap:8px; }
+.search { width:220px; border:1px solid #d5d5da; background:#e8e8ed; border-radius:8px; padding:7px 10px; }
+.help { width:28px; height:28px; border-radius:50%; background:#e8e8ed; border:0; }
+.layout { max-width:1440px; grid-template-columns:250px minmax(0,780px); gap:54px; padding:26px 34px 60px; }
+.sidebar { top:70px; }
+.profile { background:transparent; border:0; border-radius:12px; padding:10px 8px; gap:11px; margin-bottom:10px; }
+.avatar { width:42px; height:42px; font-size:16px; box-shadow:none; }
+.profile h2 { font-size:13px; font-weight:600; margin-bottom:3px; }
+.profile p { font-size:11px; }
+.family { background:transparent; border:0; border-radius:0; overflow:visible; margin-bottom:18px; }
+.family-head { padding:8px 10px 5px; font-size:11px; letter-spacing:.25px; }
+.family-item { border-radius:8px; padding:7px 9px; font-size:13px; gap:9px; }
+.mini-avatar { width:24px; height:24px; }
+.nav { gap:2px; }
+.nav-item { border-radius:8px; padding:7px 9px; gap:10px; font-size:13px; min-height:38px; }
+.nav-item.active { background:#dcdce1; font-weight:600; }
+.ico { width:24px; height:24px; border-radius:6px; font-size:14px; }
+.page-heading { margin:4px 0 26px; }
+h1 { font-size:28px; letter-spacing:-.65px; font-weight:700; }
+.subtitle { font-size:13px; margin-top:6px; }
+.section { margin-bottom:24px; }
+.section-title { font-size:11px; margin:0 0 8px 3px; letter-spacing:.2px; }
+.panel { border:0; border-radius:11px; box-shadow:0 0 0 1px rgba(0,0,0,.045); }
+.setting-row { gap:12px; padding:11px 13px; min-height:58px; border-bottom:1px solid #e8e8ec; }
+.setting-row:last-child { border-bottom:0; }
+.setting-row:hover { background:#f8f8fa; }
+.setting-row .row-icon { width:30px; height:30px; border-radius:7px; font-size:16px; }
+.row-copy strong { font-size:13px; font-weight:500; }
+.row-copy small { font-size:11px; margin-top:3px; }
+.row-end { font-size:12px; }
+.chev { font-size:20px; color:#a1a1a6; }
+.detail-card { border:0; border-radius:14px; padding:25px 28px; box-shadow:0 0 0 1px rgba(0,0,0,.045); }
+.big-avatar { width:84px; height:84px; font-size:30px; }
+.person-head h2 { font-size:21px; }
+.info { font-size:13px; padding:13px 3px; }
+.notice { border-radius:8px; }
+.modal { border:0; border-radius:14px; }
+.small-button { background:#e8e8ed; border:0; }
+.toast { background:#2c2c2e; color:#fff; }
+@media(max-width:800px) { .layout { grid-template-columns:1fr; gap:22px; padding:18px 16px 45px; }.sidebar { position:static; }.nav { grid-template-columns:repeat(2,minmax(0,1fr)); }.topbar { padding:0 14px; } }
+@media(max-width:480px) { .search { width:135px; }.topbar { height:48px; }.layout { padding-left:12px; padding-right:12px; }.nav { grid-template-columns:1fr 1fr; } }
+/* iOS 10-inspired blue/teal wallpaper and frosted-glass interface */
+body { background:transparent; }
+body::before { content:""; position:fixed; inset:0; z-index:0; pointer-events:none; background:radial-gradient(ellipse at 14% 18%,rgba(95,199,255,.9),transparent 34%),radial-gradient(ellipse at 84% 22%,rgba(89,122,231,.72),transparent 37%),radial-gradient(ellipse at 62% 82%,rgba(67,206,190,.72),transparent 38%),linear-gradient(145deg,#b8e7f5 0%,#8cb8e8 48%,#b9f0e0 100%); }
+.app { position:relative; z-index:1; background:transparent; }
+.topbar { background:rgba(247,250,255,.78); backdrop-filter:blur(24px) saturate(150%); border-bottom-color:rgba(255,255,255,.55); }
+.sidebar { padding:12px; border:1px solid rgba(255,255,255,.58); border-radius:18px; background:rgba(247,250,255,.58); backdrop-filter:blur(24px) saturate(145%); box-shadow:0 12px 40px rgba(37,73,120,.10); }
+.profile { background:rgba(255,255,255,.42); }
+.family { padding:4px; border-radius:12px; background:rgba(255,255,255,.38); }
+.nav-item.active { background:rgba(0,122,255,.15); color:#075eb5; }
+.panel,.detail-card { background:rgba(255,255,255,.83); backdrop-filter:blur(18px); box-shadow:0 8px 28px rgba(42,77,124,.08),0 0 0 1px rgba(255,255,255,.42); }
+.setting-row:hover { background:rgba(0,122,255,.055); }
+.apps-heading { padding:16px 10px 6px; color:#596b80; font-size:10px; font-weight:700; letter-spacing:.8px; }
+.apps-nav { gap:2px; }
+.apps-nav .nav-item { min-height:35px; }
+@media(max-width:800px) { .sidebar { padding:10px; } }
+/* Four-in-one iOS 10 experience: selectable classic, hybrid, home screen, and focused settings views. */
+.view-tools{display:flex;gap:5px;align-items:center}.view-select{max-width:142px;border:1px solid rgba(120,130,150,.35);border-radius:8px;background:rgba(255,255,255,.72);padding:7px 8px;color:#1d1d1f;font:12px -apple-system,BlinkMacSystemFont,sans-serif}.home-screen{display:none;position:fixed;inset:0;z-index:40;overflow:auto;padding:26px 22px 35px;background:radial-gradient(ellipse at 20% 12%,#7bd5ff 0,transparent 38%),radial-gradient(ellipse at 80% 70%,#50c9c0 0,transparent 40%),linear-gradient(145deg,#3988df,#6c9de7 48%,#68d5c0);color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif}.home-screen.open{display:block}.ios-status{display:flex;justify-content:space-between;align-items:center;max-width:560px;margin:0 auto 24px;font-size:13px;font-weight:650;text-shadow:0 1px 5px #234a7b66}.ios-date{text-align:center;margin:10px auto 28px;text-shadow:0 2px 10px #234a7b55}.ios-date .time{font-size:56px;font-weight:200;letter-spacing:-2px}.ios-date .day{font-size:16px;font-weight:500}.ios-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px 12px;max-width:560px;margin:0 auto}.ios-app{border:0;background:transparent;color:white;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;font:12px -apple-system,BlinkMacSystemFont,sans-serif;text-shadow:0 1px 5px #12345d88}.ios-icon{width:clamp(48px,8vw,66px);height:clamp(48px,8vw,66px);border-radius:15px;display:grid;place-items:center;font-size:30px;background:linear-gradient(145deg,#ffffffee,#ffffff9c);color:#fff;box-shadow:0 5px 14px #183e6c3d,inset 0 1px 1px #ffffffaa;text-shadow:none}.ios-icon.green{background:linear-gradient(#65df73,#21b84b)}.ios-icon.blue{background:linear-gradient(#68c5ff,#1685f8)}.ios-icon.red{background:linear-gradient(#ff8c8c,#f33b4b)}.ios-icon.yellow{background:linear-gradient(#ffe68b,#ffba24);color:#805500}.ios-icon.purple{background:linear-gradient(#d6a2ff,#9252d9)}.ios-icon.pink{background:linear-gradient(#ff9fca,#ed3c7e)}.ios-dock{display:flex;justify-content:center;gap:16px;max-width:560px;margin:32px auto 0;padding:13px 18px;border:1px solid #ffffff66;border-radius:24px;background:#eaf6ff54;backdrop-filter:blur(25px);box-shadow:0 8px 25px #1b477733}.ios-dock .ios-icon{width:58px;height:58px}.home-controls{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:22px auto 0}.glass-button{border:1px solid #ffffff80;border-radius:999px;background:#ffffff2b;color:white;padding:9px 15px;backdrop-filter:blur(16px);cursor:pointer}.control-center{display:none;position:fixed;inset:0;z-index:45;align-items:flex-end;justify-content:center;padding:18px;background:#071a3c66;backdrop-filter:blur(7px)}.control-center.open{display:flex}.control-card{width:min(560px,100%);border:1px solid #ffffff80;border-radius:25px;background:#e8f4ffbd;color:#18304c;padding:22px;backdrop-filter:blur(30px);box-shadow:0 20px 60px #08275055}.control-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.control-tile{border:0;border-radius:16px;padding:17px;text-align:left;background:#ffffffa8;color:#18304c;cursor:pointer;font-weight:600}.control-tile small{display:block;font-weight:400;margin-top:5px;color:#506982}.home-screen .back-settings{position:fixed;top:15px;left:15px}.app-mode-classic body::before{background:radial-gradient(ellipse at 20% 20%,#4cb9ed,transparent 35%),radial-gradient(ellipse at 80% 75%,#30d1b4,transparent 40%),linear-gradient(140deg,#1769c2,#60b8e8 55%,#42c9b2)}.app-mode-classic .sidebar{background:rgba(242,250,255,.68)}.app-mode-hybrid .sidebar{background:rgba(247,250,255,.58)}.app-mode-focused .sidebar{background:rgba(247,250,255,.86);backdrop-filter:blur(30px)}.app-mode-focused .apps-heading,.app-mode-focused #appsNav{display:none}.app-mode-focused .layout{grid-template-columns:230px minmax(0,850px);gap:34px}.app-mode-focused .panel{background:rgba(255,255,255,.94)}
+@media(max-width:800px){.view-tools{display:none}.ios-grid{max-width:390px;gap:22px 8px}.ios-icon{border-radius:14px}.ios-dock{gap:9px;padding:10px}.ios-dock .ios-icon{width:48px;height:48px}.ios-date .time{font-size:48px}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+<header class="topbar">
+  <div class="brand"><span class="apple" aria-hidden="true"></span><span>System Settings</span></div>
+  <div class="tools"><label class="search"><span aria-hidden="true">⌕</span><input id="searchInput" type="search" placeholder="Search settings…" aria-label="Search settings"></label><button class="help" id="helpBtn" aria-label="Help">?</button></div>
+</header>
+<div class="layout">
+<aside class="sidebar">
+  <button class="profile" id="profileBtn" style="width:100%;text-align:left;color:inherit;cursor:pointer">
+    <span class="avatar">WB</span><span><h2>Will Berdik</h2><p>Apple Account · Personal Information</p></span><span class="chev" style="margin-left:auto">›</span>
+  </button>
+  <div class="family"><div class="family-head">My Family</div>
+    <button class="family-item" data-person="family"><span class="mini-avatar" style="background:#f29d66">F</span><span>Family Sharing</span><span class="chev" style="margin-left:auto">›</span></button>
+    <button class="family-item" data-person="family"><span class="mini-avatar" style="background:#a78bfa">＋</span><span>Add Family Member</span><span class="chev" style="margin-left:auto">›</span></button>
+  </div>
+  <nav class="nav" id="nav">
+    <button class="nav-item active" data-section="general"><span class="ico" style="background:#85858b">⚙</span>General</button>
+    <button class="nav-item" data-section="wifi"><span class="ico" style="background:#1685f8">◔</span>Wi-Fi</button>
+    <button class="nav-item" data-section="bluetooth"><span class="ico" style="background:#1685f8">ᛒ</span>Bluetooth</button>
+    <button class="nav-item" data-section="notifications"><span class="ico" style="background:#fa453a">◉</span>Notifications</button>
+    <button class="nav-item" data-section="sounds"><span class="ico" style="background:#fa9f22">♫</span>Sounds</button>
+    <button class="nav-item" data-section="focus"><span class="ico" style="background:#6866d9">☾</span>Focus</button>
+    <button class="nav-item" data-section="screentime"><span class="ico" style="background:#6866d9">⌛</span>Screen Time</button>
+    <button class="nav-item" data-section="wallpaper"><span class="ico" style="background:linear-gradient(135deg,#ff8b60,#8a6de9)">▧</span>Wallpaper</button>
+    <button class="nav-item" data-section="privacy"><span class="ico" style="background:#85858b">✋</span>Privacy & Security</button>
+  </nav>
+  <div class="apps-heading">APPS</div>
+  <nav class="nav apps-nav" id="appsNav" aria-label="Apps">
+    <button class="nav-item" data-app="Messages"><span class="ico" style="background:#34c759">●</span>Messages</button>
+    <button class="nav-item" data-app="Mail"><span class="ico" style="background:#1685f8">✉</span>Mail</button>
+    <button class="nav-item" data-app="Safari"><span class="ico" style="background:#1685f8">◉</span>Safari</button>
+    <button class="nav-item" data-app="Photos"><span class="ico" style="background:linear-gradient(135deg,#ff5252,#ffbd45,#55c96b,#4da8ff,#a86bff)">✿</span>Photos</button>
+    <button class="nav-item" data-app="Music"><span class="ico" style="background:#fa3b66">♫</span>Music</button>
+    <button class="nav-item" data-app="Maps"><span class="ico" style="background:#34a853">⌖</span>Maps</button>
+    <button class="nav-item" data-app="Calendar"><span class="ico" style="background:#fff;color:#fa453a;font-size:11px">17</span>Calendar</button>
+    <button class="nav-item" data-app="Notes"><span class="ico" style="background:#ffd447;color:#705800">▤</span>Notes</button>
+    <button class="nav-item" data-app="Reminders"><span class="ico" style="background:#fff;color:#1685f8">☷</span>Reminders</button>
+    <button class="nav-item" data-app="Camera"><span class="ico" style="background:#747980">◉</span>Camera</button>
+    <button class="nav-item" data-app="App Store"><span class="ico" style="background:#1685f8">A</span>App Store</button>
+    <button class="nav-item" data-app="Health"><span class="ico" style="background:#fa453a">♥</span>Health</button>
+    <button class="nav-item" data-app="Weather"><span class="ico" style="background:#5ac8fa">☀</span>Weather</button>
+    <button class="nav-item" data-app="Phone"><span class="ico" style="background:#34c759">⌕</span>Phone</button>
+    <button class="nav-item" data-app="Clock"><span class="ico" style="background:#333842">◷</span>Clock</button>
+    <button class="nav-item" data-app="Podcasts"><span class="ico" style="background:#a45bdf">◉</span>Podcasts</button>
+    <button class="nav-item" data-app="Files"><span class="ico" style="background:#1685f8">▰</span>Files</button>
+  </nav>
+</aside>
+<main>
+  <section id="homeView">
+    <div class="page-heading"><div><h1 id="heading">General</h1><p class="subtitle" id="subheading">Customize your device and preferences.</p></div></div>
+    <div id="settingsContent"></div>
+  </section>
+  <section class="detail" id="personView">
+    <button class="back" id="backBtn">‹ Back to Settings</button>
+    <div class="page-heading"><div><h1>Personal Information</h1><p class="subtitle">Manage the details associated with your account.</p></div></div>
+    <div class="detail-card"><div class="person-head"><label for="photoUpload" class="big-avatar" id="bigAvatar" style="cursor:pointer;overflow:hidden" title="Choose a profile photo">WB</label><input id="photoUpload" type="file" accept="image/*" hidden><p style="margin-bottom:14px"><label for="photoUpload" style="color:var(--blue);cursor:pointer">Change Photo</label></p><h2 id="profileNameHeading">Will Berdik</h2><p>Apple Account</p></div>
+      <form id="profileForm"><div class="info-list">
+        <div class="info"><label for="editName">Name</label><input id="editName" class="choice" value="Will Berdik" required></div>
+        <div class="info"><label for="editBirthday">Birthday</label><input id="editBirthday" class="choice" type="date"></div>
+        <div class="info"><label for="editPhone">Phone Number</label><input id="editPhone" class="choice" type="tel" placeholder="Add phone number"></div>
+        <div class="info"><label for="editEmail">Email</label><input id="editEmail" class="choice" type="email" placeholder="Add email"></div>
+        <div class="info"><label for="editAddress">Home Address</label><input id="editAddress" class="choice" placeholder="Add address"></div>
+      </div><button class="modal button" style="margin-top:16px;background:var(--blue);color:white;border:0;padding:10px 16px;border-radius:9px;cursor:pointer" type="submit">Save Profile</button></form>
+      <div class="notice">Demo only: profile changes are saved in this browser on this device. Do not enter sensitive details on a public or shared computer.</div>
+    </div>
+  </section>
+</main>
+</div>
+<div class="modal-backdrop" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="modal"><h2 id="helpTitle">Settings Help</h2><p>Use the sidebar to explore settings like Screen Time, Wallpaper, Wi-Fi, and Privacy. Select your profile to view personal information. Search settings using the field in the upper-right corner.</p><button id="closeHelp">Got it</button></div></div>
+</div>
+<script>
+const data = {
+ general:{title:'General',sub:'Customize your device and preferences.',groups:[{title:'',rows:[['⬚','About','Device name, software version, and storage','#85858b',''],['↻','Software Update','Your device is up to date','#1685f8',''],['▣','AirDrop','Sharing and receiving options','#1685f8','Everyone'],['⌨','Keyboard','Text input and keyboard settings','#85858b','']]},{title:'',rows:[['▤','Storage','Review device storage','#34a853',''],['↗','Language & Region','Set your language and region','#ff9f0a','']] }]},
+ wifi:{title:'Wi-Fi',sub:'Choose a network and manage connections.',groups:[{title:'NETWORK',rows:[['◔','Wi-Fi','Turn Wi-Fi on or off','#1685f8','On'],['✓','Home Network','Connected securely','#34a853','Connected'],['◔','Other Networks','Choose another available network','#1685f8','›']]}]},
+ bluetooth:{title:'Bluetooth',sub:'Connect accessories and nearby devices.',groups:[{title:'DEVICES',rows:[['ᛒ','Bluetooth','Allow nearby accessories to connect','#1685f8','On'],['⌁','My Devices','Manage paired devices','#1685f8','›']]}]},
+ notifications:{title:'Notifications',sub:'Choose how and when apps alert you.',groups:[{title:'NOTIFICATION STYLE',rows:[['▣','Scheduled Summary','Receive a summary at set times','#fa453a','Off'],['▣','Preview Display','Show previews when unlocked','#fa453a','When Unlocked'],['◉','App Notifications','Customize alerts for each app','#fa453a','›']]}]},
+ sounds:{title:'Sounds',sub:'Set volume, alerts, and haptics.',groups:[{title:'SOUNDS & HAPTICS',rows:[['♫','Ringtone','Choose your ringtone','#fa9f22','Reflection'],['♬','Text Tone','Choose your text alert','#fa9f22','Note'],['〰','Haptics','Choose vibration behavior','#fa9f22','Always Play']]}]},
+ focus:{title:'Focus',sub:'Reduce distractions when you need to concentrate.',groups:[{title:'FOCUS MODES',rows:[['☾','Do Not Disturb','Silence calls and notifications','#6866d9','Off'],['☼','Personal','Customize your personal focus','#6866d9','Off'],['▣','Sleep','Set up a sleep schedule','#6866d9','Off']]}]},
+ screentime:{title:'Screen Time',sub:'Understand how you use your device and set limits.',groups:[{title:'SCREEN TIME',rows:[['⌛','App & Website Activity','See time spent across apps and websites','#6866d9','›'],['◷','Downtime','Schedule time away from the screen','#6866d9','Off'],['◴','App Limits','Set daily time limits for apps','#6866d9','›'],['♙','Communication Limits','Choose who can contact you','#6866d9','›'],['▣','Content & Privacy Restrictions','Manage allowed content and privacy','#6866d9','Off']]}]},
+ wallpaper:{title:'Wallpaper',sub:'Personalize your Lock Screen and Home Screen.',groups:[{title:'CURRENT WALLPAPER',rows:[['▧','Choose a New Wallpaper','Explore featured and saved wallpapers','linear-gradient(135deg,#ff8b60,#8a6de9)','›'],['◫','Customize','Adjust your current wallpaper','linear-gradient(135deg,#5ac8fa,#5856d6)','›']]}]},
+ privacy:{title:'Privacy & Security',sub:'Control what information apps can access.',groups:[{title:'PRIVACY',rows:[['⌖','Location Services','Choose which apps can use your location','#34a853','On'],['▣','Contacts','Review app access to contacts','#1685f8','›'],['◉','Tracking','Manage app tracking requests','#85858b','Off'],['♙','Safety Check','Review sharing and access','#fa453a','›']]}]}
+};
+const content=document.getElementById('settingsContent');
+let currentSection='general';
+const state={wifi:true,bluetooth:true,notifications:true,downtime:false,appLimits:false,location:true,tracking:false,doNotDisturb:false,volume:65};
+function toast(message){const old=document.querySelector('.toast');if(old)old.remove();const el=document.createElement('div');el.className='toast';el.textContent=message;document.body.appendChild(el);setTimeout(()=>el.remove(),2200)}
+function render(key,query='') { currentSection=key;const page=data[key]||data.general; document.getElementById('heading').textContent=page.title;document.getElementById('subheading').textContent=page.sub;content.innerHTML='';let found=0;page.groups.forEach(group=>{const rows=group.rows.filter(r=>(r[1]+' '+r[2]).toLowerCase().includes(query.toLowerCase()));if(!rows.length)return;found+=rows.length;const section=document.createElement('section');section.className='section';if(group.title){const t=document.createElement('div');t.className='section-title';t.textContent=group.title;section.appendChild(t)}const panel=document.createElement('div');panel.className='panel';rows.forEach(r=>{const row=document.createElement('div');row.className='setting-row';row.tabIndex=0;row.setAttribute('role','button');row.innerHTML=`<span class="row-icon" style="background:${r[3]}">${r[0]}</span><span class="row-copy"><strong></strong><small></small></span><span class="row-end"><span class="status-text"></span><span class="chev">›</span></span>`;row.querySelector('strong').textContent=r[1];row.querySelector('small').textContent=r[2];row.querySelector('.status-text').textContent=r[4];row.addEventListener('click',()=>openSetting(r[1],r[2]));row.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openSetting(r[1],r[2])}});panel.appendChild(row)});section.appendChild(panel);content.appendChild(section)});if(key==='wallpaper'&&!query)renderWallpaper();if(key==='screentime'&&!query)renderScreenTime();if(!found)content.innerHTML='<div class="panel empty">No settings matched your search.</div>';}
+function controlRow(label,id,checked,description=''){return `<div class="action-control"><span><strong>${label}</strong>${description?`<br><small style="color:var(--muted)">${description}</small>`:''}</span><input class="switch" type="checkbox" data-toggle="${id}" ${checked?'checked':''} aria-label="${label}"></div>`}
+function renderScreenTime(){const section=document.createElement('section');section.className='section';section.innerHTML=`<div class="section-title">LIVE DEMO CONTROLS</div><div class="panel" style="padding:16px"><div style="font-size:13px;color:var(--muted);margin-bottom:8px">Example daily activity</div><div style="font-size:30px;font-weight:700">3 hr 24 min</div><div style="height:8px;background:var(--secondary);border-radius:8px;overflow:hidden;margin:12px 0 18px"><div style="width:68%;height:100%;background:#6866d9;border-radius:8px"></div></div>${controlRow('Downtime','downtime',state.downtime,'Pause selected apps on a schedule')}${controlRow('App Limits','appLimits',state.appLimits,'Set daily limits for selected apps')}</div>`;content.appendChild(section)}
+function renderWallpaper(){const section=document.createElement('section');section.className='section';section.innerHTML='<div class="section-title">CHOOSE A WALLPAPER</div><div class="panel" style="padding:18px"><p style="margin:0;color:var(--muted);font-size:13px">Select a preview to change the page background accent.</p><div class="wallpaper-swatches"><button class="swatch selected" data-wall="blue" aria-label="Blue wallpaper" style="background:linear-gradient(145deg,#d5e8ff,#5578c8)"></button><button class="swatch" data-wall="sunset" aria-label="Sunset wallpaper" style="background:linear-gradient(145deg,#ffcf91,#fa6478,#805ad5)"></button><button class="swatch" data-wall="ocean" aria-label="Ocean wallpaper" style="background:linear-gradient(145deg,#70e1f5,#3857d6,#1b174d)"></button><button class="swatch" data-wall="forest" aria-label="Forest wallpaper" style="background:linear-gradient(145deg,#b5e48c,#34845b,#163b35)"></button></div></div>';content.appendChild(section);section.querySelectorAll('[data-wall]').forEach(btn=>btn.addEventListener('click',()=>{section.querySelectorAll('[data-wall]').forEach(b=>b.classList.toggle('selected',b===btn));const colors={blue:['#d5e8ff','#5578c8'],sunset:['#ffcf91','#805ad5'],ocean:['#70e1f5','#1b174d'],forest:['#b5e48c','#163b35']};document.querySelectorAll('.avatar,.big-avatar').forEach(a=>a.style.background=`linear-gradient(145deg,${colors[btn.dataset.wall].join(',')})`);toast('Wallpaper preview updated')}))}
+function openSetting(title,description){if(title==='Wallpaper'){document.querySelector('[data-section="wallpaper"]').click();return}if(title==='App & Website Activity'){showMessage('Screen Time','This demo shows example activity only, not real device usage. Try the Downtime and App Limits switches below.');return}if(title==='Wi-Fi'||title==='Bluetooth'||title==='Location Services'||title==='Tracking'||title==='Do Not Disturb'||title==='Scheduled Summary'){const map={'Wi-Fi':'wifi','Bluetooth':'bluetooth','Location Services':'location','Tracking':'tracking','Do Not Disturb':'doNotDisturb','Scheduled Summary':'notifications'};const id=map[title];state[id]=!state[id];toast(`${title}: ${state[id]?'On':'Off'}`);render(currentSection,document.getElementById('searchInput').value);return}showMessage(title,description+' This is an interactive front-end demo; it does not change your actual device settings.')}
+function showPerson(){document.getElementById('homeView').style.display='none';document.getElementById('personView').classList.add('show')}
+function showHome(){document.getElementById('homeView').style.display='block';document.getElementById('personView').classList.remove('show')}
+function showMessage(title,message){const modal=document.getElementById('helpModal');document.getElementById('helpTitle').textContent=title;modal.querySelector('p').textContent=message;modal.classList.add('open')}
+document.getElementById('profileBtn').addEventListener('click',showPerson);document.getElementById('backBtn').addEventListener('click',showHome);
+document.querySelectorAll('[data-section]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('[data-section]').forEach(b=>b.classList.toggle('active',b===btn));showHome();document.getElementById('searchInput').value='';render(btn.dataset.section)}));
+document.querySelectorAll('[data-person]').forEach(btn=>btn.addEventListener('click',()=>showFamily()));
+document.getElementById('searchInput').addEventListener('input',e=>{showHome();render(document.querySelector('.nav-item.active')?.dataset.section||'general',e.target.value)});
+document.getElementById('helpBtn').addEventListener('click',()=>showMessage('Settings Help','Use the sidebar to explore settings like Screen Time, Wallpaper, Wi-Fi, and Privacy. Select your profile to view personal information. Search settings using the field in the upper-right corner.'));
+document.getElementById('closeHelp').addEventListener('click',()=>document.getElementById('helpModal').classList.remove('open'));document.getElementById('helpModal').addEventListener('click',e=>{if(e.target.id==='helpModal')e.currentTarget.classList.remove('open')});document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('helpModal').classList.remove('open')});
+content.addEventListener('change',e=>{if(e.target.matches('[data-toggle]')){state[e.target.dataset.toggle]=e.target.checked;toast(`${e.target.closest('.action-control').querySelector('strong').textContent}: ${e.target.checked?'On':'Off'}`)}});
+function showFamily(){document.getElementById('homeView').style.display='none';document.getElementById('personView').classList.add('show');document.querySelector('#personView h1').textContent='My Family';document.querySelector('#personView .subtitle').textContent='Manage family sharing in this demo.';document.querySelector('#personView .detail-card').innerHTML='<h2>Family Sharing</h2><p style="color:var(--muted);font-size:14px">Example family members</p><div class="family-member"><span class="mini-avatar" style="background:#f29d66">W</span><span class="member-name">Will Berdik<br><small style="color:var(--muted)">Organizer</small></span><span>✓</span></div><div id="extraMembers"></div><button class="save" id="addMember">＋ Add Family Member</button><div class="notice">Demo only. Family members added here are temporary and are not Apple accounts.</div>';document.getElementById('addMember').addEventListener('click',()=>{const name=prompt('Enter a display name for the demo family member:');if(name&&name.trim()){const row=document.createElement('div');row.className='family-member';const avatar=document.createElement('span');avatar.className='mini-avatar';avatar.style.background='#a78bfa';avatar.textContent=name.trim()[0].toUpperCase();const label=document.createElement('span');label.className='member-name';label.textContent=name.trim();const remove=document.createElement('button');remove.className='small-button';remove.textContent='Remove';remove.addEventListener('click',()=>row.remove());row.append(avatar,label,remove);document.getElementById('extraMembers').appendChild(row)}})}
+function restoreProfile(){const saved=JSON.parse(localStorage.getItem('settingsDemoProfile')||'{}');for(const id of ['editName','editBirthday','editPhone','editEmail','editAddress'])if(saved[id])document.getElementById(id).value=saved[id];if(saved.editName)document.getElementById('profileNameHeading').textContent=saved.editName;}
+document.getElementById('profileForm').addEventListener('submit',e=>{e.preventDefault();const saved={};for(const id of ['editName','editBirthday','editPhone','editEmail','editAddress'])saved[id]=document.getElementById(id).value;try{localStorage.setItem('settingsDemoProfile',JSON.stringify(saved));document.getElementById('profileNameHeading').textContent=saved.editName;document.querySelector('#profileBtn h2').textContent=saved.editName;toast('Profile saved on this device')}catch(err){toast('Unable to save in this browser')}});
+document.getElementById('photoUpload').addEventListener('change',e=>{const file=e.target.files[0];if(!file)return;if(!file.type.startsWith('image/')){toast('Choose an image file');return}const reader=new FileReader();reader.onload=()=>{const url=reader.result;['bigAvatar','.avatar'].forEach(selector=>document.querySelectorAll(selector==='bigAvatar'?'#bigAvatar':selector).forEach(el=>{el.style.backgroundImage=`url(${url})`;el.style.backgroundSize='cover';el.style.backgroundPosition='center';el.textContent=''}));try{localStorage.setItem('settingsDemoPhoto',url)}catch(err){toast('Photo selected but too large to save')}};reader.readAsDataURL(file)});
+try{const photo=localStorage.getItem('settingsDemoPhoto');if(photo)document.querySelectorAll('#bigAvatar,.avatar').forEach(el=>{el.style.backgroundImage=`url(${photo})`;el.style.backgroundSize='cover';el.style.backgroundPosition='center';el.textContent=''})}catch(err){}restoreProfile();
+render('general');
+</script>
+<script>
+/* Interaction layer: editable setting details, persistent preferences, and global search. */
+(() => {
+  const $ = (s, root=document) => root.querySelector(s);
+  const $$ = (s, root=document) => [...root.querySelectorAll(s)];
+  const storeKey = 'settingsDemoPreferences';
+  let prefs = {};
+  try { prefs = JSON.parse(localStorage.getItem(storeKey) || '{}') || {}; } catch (_) {}
+  const persist = () => { try { localStorage.setItem(storeKey, JSON.stringify(prefs)); } catch (_) {} };
+  const baseShowPerson = showPerson;
+  const detail = $('#personView');
+  const profileMarkup = detail.innerHTML;
+  const helpModal = $('#helpModal');
+
+  // Add a theme control and an accessible, purpose-built settings editor.
+  const themeButton = document.createElement('button');
+  themeButton.className = 'small-button'; themeButton.id = 'themeToggle';
+  themeButton.textContent = document.documentElement.dataset.demoTheme === 'dark' ? '☀ Light' : '◐ Appearance';
+  themeButton.setAttribute('aria-label','Toggle light and dark appearance');
+  $('.tools').insertBefore(themeButton, $('#helpBtn'));
+  const applyTheme = dark => {
+    document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+    themeButton.textContent = dark ? '☀ Light' : '☾ Dark';
+    prefs.dark = dark; persist();
+  };
+  applyTheme(!!prefs.dark);
+  themeButton.addEventListener('click', () => applyTheme(!prefs.dark));
+
+  const editor = document.createElement('div');
+  editor.className = 'modal-backdrop'; editor.id = 'settingEditor';
+  editor.innerHTML = '<div class="modal" role="dialog" aria-modal="true" aria-labelledby="editorTitle"><h2 id="editorTitle">Setting</h2><p id="editorDescription"></p><div id="editorFields"></div><div style="display:flex;justify-content:flex-end;gap:9px;margin-top:20px"><button type="button" id="editorCancel" class="small-button">Cancel</button><button type="button" id="editorSave">Save Changes</button></div></div>';
+  document.body.appendChild(editor);
+  const fields = $('#editorFields', editor);
+  let activeTitle = '';
+  const toggleNames = new Set(['Wi-Fi','Bluetooth','Scheduled Summary','Do Not Disturb','Personal','Sleep','Downtime','App Limits','Content & Privacy Restrictions','Location Services','Tracking']);
+  const options = {
+    'AirDrop':['Receiving Off','Contacts Only','Everyone for 10 Minutes'],
+    'Preview Display':['Always','When Unlocked','Never'],
+    'Ringtone':['Reflection','Apex','Beacon','Chimes','Circuit'],
+    'Text Tone':['Note','Chord','Glass','Popcorn'],
+    'Language & Region':['English (United States)','English (United Kingdom)','French','Spanish'],
+    'Haptics':['Always Play','Play in Silent Mode','Never Play'],
+    'Choose a New Wallpaper':['Blue','Sunset','Ocean','Forest']
+  };
+  const defaultValues = {'Wi-Fi':true,'Bluetooth':true,'Scheduled Summary':false,'Do Not Disturb':false,'Personal':false,'Sleep':false,'Downtime':false,'App Limits':false,'Content & Privacy Restrictions':false,'Location Services':true,'Tracking':false,'AirDrop':'Everyone for 10 Minutes','Preview Display':'When Unlocked','Ringtone':'Reflection','Text Tone':'Note','Language & Region':'English (United States)','Haptics':'Always Play','Volume':65,'Device Name':'Will’s iPhone'};
+  function currentValue(title) { return Object.prototype.hasOwnProperty.call(prefs,title) ? prefs[title] : defaultValues[title]; }
+  function openEditor(title, description) {
+    activeTitle = title; $('#editorTitle',editor).textContent = title; $('#editorDescription',editor).textContent = description || 'Adjust this demo preference. Changes are saved in this browser.'; fields.innerHTML = '';
+    const value = currentValue(title);
+    if (toggleNames.has(title)) {
+      fields.innerHTML = `<div class="action-control"><label for="editorValue">${title}</label><input class="switch" id="editorValue" type="checkbox" ${value ? 'checked' : ''}></div>`;
+    } else if (options[title]) {
+      const label = document.createElement('label'); label.textContent = 'Choose an option'; label.style.display='block'; label.style.margin='12px 0 8px';
+      const select = document.createElement('select'); select.id='editorValue'; select.className='choice'; select.style.maxWidth='100%'; select.style.width='100%';
+      options[title].forEach(item => { const opt=document.createElement('option'); opt.value=item; opt.textContent=item; select.appendChild(opt); });
+      select.value = options[title].includes(value) ? value : options[title][0]; fields.append(label,select);
+    } else if (title === 'Volume') {
+      fields.innerHTML = `<label for="editorValue">Ringer and alert volume: <strong id="volumeValue">${Number(value ?? 65)}%</strong></label><input id="editorValue" class="range" type="range" min="0" max="100" value="${Number(value ?? 65)}" style="width:100%;margin-top:16px">`;
+      $('#editorValue',fields).addEventListener('input',e=>$('#volumeValue',fields).textContent=e.target.value+'%');
+    } else {
+      const label=document.createElement('label'); label.textContent=title==='Device Name'?'Device name':'Value'; label.style.display='block'; label.style.margin='12px 0 8px';
+      const input=document.createElement('input'); input.id='editorValue'; input.className='choice'; input.style.maxWidth='100%'; input.style.width='100%'; input.value=String(value ?? ''); input.placeholder='Enter a value'; label.htmlFor='editorValue'; fields.append(label,input);
+    }
+    editor.classList.add('open'); $('#editorValue',fields)?.focus();
+  }
+  function closeEditor(){editor.classList.remove('open')}
+  $('#editorCancel',editor).addEventListener('click',closeEditor);
+  editor.addEventListener('click',e=>{if(e.target===editor)closeEditor()});
+  $('#editorSave',editor).addEventListener('click',()=>{
+    const input=$('#editorValue',fields); if(!input)return;
+    prefs[activeTitle] = input.type==='checkbox' ? input.checked : input.type==='range' ? Number(input.value) : input.value;
+    persist(); closeEditor();
+    if(activeTitle==='Device Name') { const row=$$('.setting-row').find(r=>$('strong',r)?.textContent==='About'); if(row)$('small',row).textContent='Device name: '+prefs[activeTitle]; }
+    if(activeTitle==='Choose a New Wallpaper') { const button=$$('[data-wall]').find(b=>b.dataset.wall===prefs[activeTitle].toLowerCase()); if(button)button.click(); }
+    toast(activeTitle+' saved');
+    if(['Wi-Fi','Bluetooth','Location Services','Tracking','Do Not Disturb','Scheduled Summary'].includes(activeTitle)) render(currentSection,$('#searchInput').value);
+  });
+
+  // Clicking any row opens an appropriate control instead of a generic dead-end message.
+  openSetting = function(title, description) {
+    if(title==='Wallpaper') { document.querySelector('[data-section="wallpaper"]').click(); return; }
+    if(title==='App & Website Activity') { showMessage('App & Website Activity','This demo uses sample activity (3 hr 24 min), not live device analytics. Use the Screen Time switches to try scheduling limits.'); return; }
+    if(title==='My Devices') { showMessage('My Devices','No paired accessories are connected in this demo. Bluetooth can be switched on or off from its setting.'); return; }
+    if(title==='Other Networks') {
+      const name=prompt('Enter a demo Wi-Fi network name:'); if(name&&name.trim()){prefs['Connected Network']=name.trim();persist();toast('Connected to '+name.trim()+' (demo)');} return;
+    }
+    if(title==='App Limits') { openEditor(title,'Toggle daily app limits for this demo.'); return; }
+    if(title==='Customize') { document.querySelector('[data-section="wallpaper"]').click(); return; }
+    if(title==='Volume') { openEditor(title,description); return; }
+    const map={'AirDrop':'AirDrop','Keyboard':'Keyboard','Language & Region':'Language & Region','Ringtone':'Ringtone','Text Tone':'Text Tone','Haptics':'Haptics','Device name':'Device Name','About':'Device Name','Software Update':'Software Update','Storage':'Storage','App Notifications':'App Notifications','Communication Limits':'Communication Limits','Contacts':'Contacts','Safety Check':'Safety Check','Privacy':'Privacy'};
+    openEditor(map[title]||title,description);
+  };
+
+  // Search all sections at once, with results that navigate to the relevant setting.
+  $('#searchInput').addEventListener('input', e => {
+    const query=e.target.value.trim().toLowerCase(); if(!query)return;
+    e.stopImmediatePropagation(); showHome();
+    $('#heading').textContent='Search Results'; $('#subheading').textContent='Matching settings across all categories.'; content.innerHTML='';
+    let count=0;
+    Object.entries(data).forEach(([key,page])=>page.groups.forEach(group=>{
+      const matches=group.rows.filter(r=>(r[1]+' '+r[2]+' '+page.title).toLowerCase().includes(query)); if(!matches.length)return;
+      const section=document.createElement('section'); section.className='section'; const heading=document.createElement('div'); heading.className='section-title'; heading.textContent=page.title; section.appendChild(heading);
+      const panel=document.createElement('div'); panel.className='panel'; matches.forEach(r=>{count++;const row=document.createElement('div');row.className='setting-row';row.tabIndex=0;row.setAttribute('role','button');row.innerHTML=`<span class="row-icon" style="background:${r[3]}">${r[0]}</span><span class="row-copy"><strong></strong><small></small></span><span class="row-end"><span class="chev">›</span></span>`;$('strong',row).textContent=r[1];$('small',row).textContent=r[2];const go=()=>{document.querySelector(`[data-section="${key}"]`)?.click();setTimeout(()=>openSetting(r[1],r[2]),0)};row.addEventListener('click',go);row.addEventListener('keydown',ev=>{if(ev.key==='Enter')go()});panel.appendChild(row)});section.appendChild(panel);content.appendChild(section);
+    }));
+    if(!count)content.innerHTML='<div class="panel empty">No settings matched your search.</div>';
+  },true);
+
+  // Restore the profile view cleanly after visiting Family Sharing.
+  showPerson = function(){detail.innerHTML=profileMarkup;detail.classList.add('show');$('#homeView').style.display='none';bindProfileAgain();};
+  function bindProfileAgain(){
+    $('#backBtn')?.addEventListener('click',()=>{showHome();$('#heading').textContent=data[currentSection]?.title||'General';$('#subheading').textContent=data[currentSection]?.sub||'';});
+    $('#profileForm')?.addEventListener('submit',e=>{e.preventDefault();const saved={};['editName','editBirthday','editPhone','editEmail','editAddress'].forEach(id=>saved[id]=$('#'+id).value);try{localStorage.setItem('settingsDemoProfile',JSON.stringify(saved));$('#profileNameHeading').textContent=saved.editName;$('#profileBtn h2').textContent=saved.editName;toast('Profile saved on this device')}catch(_){toast('Unable to save profile')}});
+    $('#photoUpload')?.addEventListener('change',e=>{const file=e.target.files?.[0];if(!file)return;if(!file.type.startsWith('image/'))return toast('Choose an image file');if(file.size>3*1024*1024)return toast('Choose an image under 3 MB');const reader=new FileReader();reader.onload=()=>{const url=reader.result;$$('#bigAvatar, .avatar').forEach(el=>{el.style.backgroundImage=`url(${url})`;el.style.backgroundSize='cover';el.style.backgroundPosition='center';el.textContent=''});try{localStorage.setItem('settingsDemoPhoto',url)}catch(_){toast('Photo selected for this session')}};reader.readAsDataURL(file)});
+    try{const saved=JSON.parse(localStorage.getItem('settingsDemoProfile')||'{}');Object.entries(saved).forEach(([id,val])=>{if($('#'+id))$('#'+id).value=val});if(saved.editName)$('#profileNameHeading').textContent=saved.editName;const photo=localStorage.getItem('settingsDemoPhoto');if(photo)$$('#bigAvatar, .avatar').forEach(el=>{el.style.backgroundImage=`url(${photo})`;el.style.backgroundSize='cover';el.style.backgroundPosition='center';el.textContent=''})}catch(_){}
+  }
+  showFamily = function(){
+    showMessage('My Family','Family Sharing is a local demo. Add or remove sample family members below; this does not connect to Apple accounts.');
+    const modal=$('#helpModal'); const p=$('p',modal); p.innerHTML='Family Sharing is a local demo. Add sample members here; this does not connect to Apple accounts.';
+    let list=$('#demoFamilyList',modal); if(!list){list=document.createElement('div');list.id='demoFamilyList';p.after(list);const add=document.createElement('button');add.id='demoAddFamily';add.textContent='＋ Add Family Member';add.style.marginRight='8px';list.after(add);add.addEventListener('click',()=>{const name=prompt('Enter a display name for this demo family member:');if(!name?.trim())return;const item=document.createElement('div');item.className='family-member';const label=document.createElement('span');label.className='member-name';label.textContent=name.trim();const remove=document.createElement('button');remove.className='small-button';remove.textContent='Remove';remove.onclick=()=>item.remove();item.append(label,remove);list.appendChild(item)});}
+    list.innerHTML='';
+  };
+})();
+</script>
+<script>
+document.getElementById('appsNav')?.addEventListener('click', event => {
+  const button = event.target.closest('[data-app]');
+  if (!button) return;
+  document.querySelectorAll('#appsNav .nav-item').forEach(item => item.classList.toggle('active', item === button));
+  document.querySelectorAll('#nav .nav-item').forEach(item => item.classList.remove('active'));
+  showMessage(button.dataset.app, `${button.dataset.app} is represented here as an iOS 10-style demo app shortcut. This preview does not connect to your actual apps or device.`);
+});
+</script>
+<section class="home-screen" id="iosHome" aria-label="iOS 10 home screen">
+  <div class="ios-status"><span id="iosClock">9:41</span><span>●●●  Wi-Fi  ▰</span></div>
+  <button class="glass-button back-settings" id="backToSettings">‹ System Settings</button>
+  <div class="ios-date"><div class="time" id="iosTime">9:41</div><div class="day" id="iosDay">Friday, October 16</div></div>
+  <div class="ios-grid" id="iosGrid">
+    <button class="ios-app" data-ios-app="Messages"><span class="ios-icon green">●</span>Messages</button>
+    <button class="ios-app" data-ios-app="Calendar"><span class="ios-icon red" style="background:linear-gradient(#fff 0 25%,#f34d4d 25%)"><span style="color:#e94b4b;font-size:19px">17</span></span>Calendar</button>
+    <button class="ios-app" data-ios-app="Photos"><span class="ios-icon"><span style="font-size:32px;background:conic-gradient(#f55,#ffbd43,#6cce65,#41a8ff,#aa65ed,#f55);color:transparent;background-clip:text">✿</span></span>Photos</button>
+    <button class="ios-app" data-ios-app="Camera"><span class="ios-icon" style="background:linear-gradient(#777,#30343b)">◉</span>Camera</button>
+    <button class="ios-app" data-ios-app="Weather"><span class="ios-icon blue">☀</span>Weather</button>
+    <button class="ios-app" data-ios-app="Clock"><span class="ios-icon" style="background:linear-gradient(#fff,#dce8f4);color:#333">◷</span>Clock</button>
+    <button class="ios-app" data-ios-app="Maps"><span class="ios-icon green">⌖</span>Maps</button>
+    <button class="ios-app" data-ios-app="Videos"><span class="ios-icon pink">▶</span>Videos</button>
+    <button class="ios-app" data-ios-app="Notes"><span class="ios-icon yellow">▤</span>Notes</button>
+    <button class="ios-app" data-ios-app="Reminders"><span class="ios-icon">☷</span>Reminders</button>
+    <button class="ios-app" data-ios-app="Stocks"><span class="ios-icon">⌁</span>Stocks</button>
+    <button class="ios-app" data-ios-app="iTunes Store"><span class="ios-icon pink">♪</span>iTunes Store</button>
+    <button class="ios-app" data-ios-app="App Store"><span class="ios-icon blue">A</span>App Store</button>
+    <button class="ios-app" data-ios-app="Health"><span class="ios-icon red">♥</span>Health</button>
+    <button class="ios-app" data-ios-app="Home"><span class="ios-icon yellow">⌂</span>Home</button>
+    <button class="ios-app" data-ios-app="Settings"><span class="ios-icon" style="background:linear-gradient(#bfc7d0,#68717d)">⚙</span>Settings</button>
+  </div>
+  <div class="ios-dock">
+    <button class="ios-app" data-ios-app="Phone"><span class="ios-icon green">⌕</span></button>
+    <button class="ios-app" data-ios-app="Safari"><span class="ios-icon blue">◉</span></button>
+    <button class="ios-app" data-ios-app="Mail"><span class="ios-icon blue">✉</span></button>
+    <button class="ios-app" data-ios-app="Music"><span class="ios-icon pink">♫</span></button>
+  </div>
+  <div class="home-controls"><button class="glass-button" id="controlCenterBtn">Open Control Center ▴</button><button class="glass-button" id="homeSettingsBtn">Personalize Settings</button></div>
+</section>
+<div class="control-center" id="controlCenter"><div class="control-card"><h2 style="margin-top:0">Control Center</h2><div class="control-grid"><button class="control-tile" data-control="Wi-Fi">◔ Wi-Fi<small>Toggle demo Wi-Fi</small></button><button class="control-tile" data-control="Bluetooth">ᛒ Bluetooth<small>Toggle demo Bluetooth</small></button><button class="control-tile" data-control="Do Not Disturb">☾ Do Not Disturb<small>Quiet notifications</small></button><button class="control-tile" data-control="Flashlight">▣ Flashlight<small>Demo toggle</small></button></div><p style="font-size:12px;color:#526980">Illustrative controls only — not connected to your iPhone.</p><button class="small-button" id="closeControlCenter">Done</button></div></div>
+<script>
+(() => {
+  const app=document.getElementById('app');
+  const tools=document.querySelector('.tools');
+  const chooser=document.createElement('label'); chooser.className='view-tools'; chooser.innerHTML='<span style="font-size:11px;color:#596b80">VIEW</span><select class="view-select" id="experienceMode" aria-label="Choose interface view"><option value="hybrid">Settings + iOS 10</option><option value="classic">Classic iOS 10 look</option><option value="home">Full iOS 10 Home Screen</option><option value="focused">Focused Settings</option></select>';
+  tools.insertBefore(chooser,document.getElementById('helpBtn'));
+  const modeSelect=document.getElementById('experienceMode'); const home=document.getElementById('iosHome'); const center=document.getElementById('controlCenter');
+  let savedMode='hybrid';try{savedMode=localStorage.getItem('settingsExperienceMode')||'hybrid'}catch(_){}
+  function setMode(mode){savedMode=mode;app.classList.remove('app-mode-classic','app-mode-hybrid','app-mode-focused');if(mode==='classic')app.classList.add('app-mode-classic');if(mode==='focused')app.classList.add('app-mode-focused');if(mode==='hybrid')app.classList.add('app-mode-hybrid');home.classList.toggle('open',mode==='home');modeSelect.value=mode;try{localStorage.setItem('settingsExperienceMode',mode)}catch(_){} }
+  modeSelect.addEventListener('change',()=>setMode(modeSelect.value));setMode(savedMode);
+  function updateClock(){const now=new Date();const time=now.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});document.getElementById('iosTime').textContent=time;document.getElementById('iosClock').textContent=time;document.getElementById('iosDay').textContent=now.toLocaleDateString([], {weekday:'long',month:'long',day:'numeric'});}
+  updateClock();
+  // Keep the displayed time synchronized with the viewer's actual local clock.
+  window.setInterval(updateClock, 1000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) updateClock(); });
+  document.getElementById('backToSettings').addEventListener('click',()=>setMode('hybrid'));
+  document.getElementById('homeSettingsBtn').addEventListener('click',()=>setMode('focused'));
+  document.getElementById('controlCenterBtn').addEventListener('click',()=>center.classList.add('open'));
+  document.getElementById('closeControlCenter').addEventListener('click',()=>center.classList.remove('open'));
+  center.addEventListener('click',e=>{if(e.target===center)center.classList.remove('open')});
+  document.querySelectorAll('[data-control]').forEach(btn=>btn.addEventListener('click',()=>{btn.classList.toggle('on');btn.style.background=btn.classList.contains('on')?'#a7d4ff':'#ffffffa8';btn.querySelector('small').textContent=btn.classList.contains('on')?'On · demo toggle':'Toggle demo setting'}));
+  document.querySelectorAll('[data-ios-app]').forEach(btn=>btn.addEventListener('click',()=>{const name=btn.dataset.iosApp;if(name==='Settings'){setMode('hybrid');return}if(name==='Safari'){const search=document.getElementById('searchInput');search.value='Safari';search.dispatchEvent(new Event('input',{bubbles:true}));setMode('focused');return}if(name==='Phone'||name==='Messages'||name==='Mail'){showMessage(name,`The ${name} icon is an interactive iOS 10-style placeholder in this website demo. It does not open or access your actual device app.`);return}showMessage(name,`${name} is shown as a sample iOS 10 app. This visual demo is not connected to your iPhone or the real app.`)}));
+  // Add a persistent home-screen shortcut in the profile area, keeping the original profile editor intact.
+  const profileHint=document.createElement('button');profileHint.className='small-button';profileHint.style.width='100%';profileHint.style.margin='0 0 14px';profileHint.textContent='▦  Open iOS 10 Home Screen';profileHint.addEventListener('click',()=>setMode('home'));document.querySelector('.sidebar').insertBefore(profileHint,document.querySelector('.family'));
+  const originalShowPerson=showPerson;
+  showPerson=function(){setMode('focused');originalShowPerson();};
+})();
+</script>
+</body>
+</html>
